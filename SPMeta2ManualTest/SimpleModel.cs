@@ -11,6 +11,7 @@ using SPMeta2.CSOM.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.Publishing.Navigation;
 using Microsoft.SharePoint.Client.Taxonomy;
@@ -18,6 +19,7 @@ using SPMeta2.CSOM.Services;
 using SPMeta2.Enumerations;
 using SPMeta2.Models;
 using SPMeta2.Standard.Definitions;
+using SPMeta2.Standard.Definitions.Fields;
 using SPMeta2.Standard.Syntax;
 using SPMeta2.Standard.Definitions.Taxonomy;
 using SPMeta2.Syntax.Default;
@@ -52,10 +54,30 @@ namespace SPMeta2ManualTest
                                 },
                                     termset =>
                                     {
-                                        termset.AddTaxonomyTerm(new TaxonomyTermDefinition() {Name = "testterm"});
+                                        termset.AddTaxonomyTerm(new TaxonomyTermDefinition() {Name = "testterm", LCID = 1033});
                                     });
                             });
                     }
+                    );
+
+
+            });
+            var rootSiteModel2 = SPMeta2Model.NewSiteModel(site =>
+            {
+
+                site.AddTaxonomyField(new TaxonomyFieldDefinition()
+                {
+                    InternalName = "sptaxfieldtest1",
+                    Group = "spmeta2test",
+                    Title = "TextTaxonomyField",
+                    IsSiteCollectionGroup = true,
+                    //TermGroupName = "Site Collection - mbakirov367.sharepoint.com",
+                    UseDefaultSiteCollectionTermStore = true,
+                    TermSetName = "SPMETA2Test",
+                    TermSetLCID = 1033,
+                    TermName = "testterm",
+                    TermLCID = 1033
+                }
                     );
             });
 
@@ -66,7 +88,9 @@ namespace SPMeta2ManualTest
  
             });
 
-            provisioningService.DeploySiteModel(context, rootWebModel);
+            provisioningService.DeploySiteModel(context, rootSiteModel);
+            Thread.Sleep(1000);
+            provisioningService.DeploySiteModel(context, rootSiteModel2);
             provisioningService.DeployWebModel(context, rootWebModel);
 
         }
